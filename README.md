@@ -116,6 +116,12 @@ Note: GitHub automatically disables scheduled workflows after 60 days with no re
 
 ## Troubleshooting
 
+**`Warning: N playlist entries have no URI and cannot be removed automatically`**
+
+An entry in the playlist came back from Spotify with no track attached — usually because the track was pulled from the catalog after it was added. Spotify's API identifies tracks for removal by URI, and that's exactly what these entries no longer have, so the script can't delete them. It skips them and carries on. If they build up, remove them by hand in the Spotify app.
+
+---
+
 **`SpotifyOauthError: invalid_grant, error_description: Refresh token expired/revoked`**
 
 The cached refresh token was invalidated on Spotify's side — usually because access was revoked under `open.spotify.com` → your account → **Apps**, or the app's Client Secret was regenerated in the developer dashboard. There's no code fix: delete the stale token cache (locally, or the `SPOTIFY_TOKEN_CACHE` secret in Actions) and redo the login flow described in [Usage](#usage) to mint a new one.

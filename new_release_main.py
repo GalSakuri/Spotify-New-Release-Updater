@@ -158,18 +158,30 @@ def main():
     results = sp.playlist_items(
         playlist_id,
         fields="items(added_at,track(uri)),next",
-        additional_types=["track"]
+        # Asking for both types matters: an entry whose type isn't requested
+        # comes back with a null "track", and a null track carries no URI to
+        # remove it by, so it would be stuck in the playlist for good.
+        additional_types=["track", "episode"]
     )
-    existing_items.extend(results.get("items") or [])
+    existing_items.extend(results["items"])
     while results.get("next"):
         results = sp.next(results)
-        existing_items.extend(results.get("items") or [])
+        existing_items.extend(results["items"])
 
-    # Spotify can return entries with a null track (removed/unavailable items)
-    existing_items = [
+    # Anything still null here (a catalog removal, say) can't be acted on at
+    # all — every remove endpoint keys off the URI this entry no longer has.
+    # Count them so they're visible rather than silently skipped forever.
+    usable_items = [
         item for item in existing_items
         if item and item.get("track") and item["track"].get("uri") and item.get("added_at")
     ]
+    unremovable = len(existing_items) - len(usable_items)
+    if unremovable:
+        print(f"Warning: {unremovable} playlist entr"
+              f"{'y has' if unremovable == 1 else 'ies have'} no URI and "
+              "cannot be removed automatically; delete them by hand if they "
+              "pile up.")
+    existing_items = usable_items
 
     # 8) Remove tracks that were added more than 14 days ago
     two_weeks_ago = datetime.now(timezone.utc) - timedelta(days=14)
