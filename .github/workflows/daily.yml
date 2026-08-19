@@ -12,7 +12,6 @@ on:
   # that succeeds makes the rest no-ops.
   schedule:
     - cron: '7 21 * * *'   # targets ~00:07 UTC actual / 02:07 IST / 03:07 IDT
-    - cron: '21 21 * * *'  # targets ~00:21 UTC actual / 02:21 IST / 03:21 IDT
     - cron: '37 21 * * *'  # targets ~00:37 UTC actual / 02:37 IST / 03:37 IDT
   workflow_dispatch:
 

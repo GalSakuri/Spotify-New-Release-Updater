@@ -94,7 +94,9 @@ The script will:
 
 ## Scheduling with GitHub Actions
 
-The repo includes [`.github/workflows/daily.yml`](.github/workflows/daily.yml), which runs the script daily at 01:00 UTC and can also be triggered manually from the **Actions** tab ("Run workflow").
+The repo includes [`.github/workflows/daily.yml`](.github/workflows/daily.yml), which runs the script once a day and can also be triggered manually from the **Actions** tab ("Run workflow").
+
+The schedule has two cron entries, at 21:07 and 21:37 UTC. That looks early, but GitHub's scheduler is best-effort and has been starting this repo's jobs roughly 3 hours late, so firing the evening before lands the actual run inside the intended 00:00–01:00 UTC window (02:00–04:00 Israel time, in both winter and summer). The second entry is a **retry, not a second update**: a guard step at the top of the job checks whether a scheduled run already succeeded today and skips if so. Manual runs never skip.
 
 To set it up on your own fork:
 
@@ -105,6 +107,8 @@ To set it up on your own fork:
    - `SPOTIPY_REDIRECT_URI`
    - `SPOTIFY_TOKEN_CACHE` — the full contents of the token cache file generated in step 1
 3. Push to `main`. The workflow starts running on its schedule from then on.
+
+Re-running is harmless in any case — tracks already in the playlist are filtered out by URI before anything is added, so a duplicate run won't double-add.
 
 Note: GitHub automatically disables scheduled workflows after 60 days with no repository activity (pushes/commits — the scheduled runs themselves don't count). If that happens, go to **Actions → Daily New Releases** and click **"Enable workflow"**.
 

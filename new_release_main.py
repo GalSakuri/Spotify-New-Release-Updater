@@ -160,10 +160,16 @@ def main():
         fields="items(added_at,track(uri)),next",
         additional_types=["track"]
     )
-    existing_items.extend(results["items"])
+    existing_items.extend(results.get("items") or [])
     while results.get("next"):
         results = sp.next(results)
-        existing_items.extend(results["items"])
+        existing_items.extend(results.get("items") or [])
+
+    # Spotify can return entries with a null track (removed/unavailable items)
+    existing_items = [
+        item for item in existing_items
+        if item and item.get("track") and item["track"].get("uri") and item.get("added_at")
+    ]
 
     # 8) Remove tracks that were added more than 14 days ago
     two_weeks_ago = datetime.now(timezone.utc) - timedelta(days=14)
