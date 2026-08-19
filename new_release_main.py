@@ -54,9 +54,9 @@ def main():
     artist_ids = [a["id"] for a in artists]
     print(f"Found {len(artist_ids)} followed artists.")
 
-    # 3) Identify new tracks released in the past 7 days by followed artists
+    # 3) Identify new tracks released in the past 3 days by followed artists
     # * Use timezone-aware current time for UTC
-    one_week_ago = datetime.now(timezone.utc) - timedelta(days=3)
+    release_cutoff = datetime.now(timezone.utc) - timedelta(days=3)
     # * List of keywords to exclude from new releases
     exclude_keywords = ["remix", "instrumental", "mix", "live", "version"]
     # 3.1) Collect new tracks with their release dates
@@ -90,7 +90,7 @@ def main():
                 else:
                     rd_dt = datetime.strptime(
                         rd, "%Y").replace(tzinfo=timezone.utc)
-                if rd_dt >= one_week_ago:
+                if rd_dt >= release_cutoff:
                     tracks = sp.album_tracks(alb["id"])["items"]
                     for t in tracks:
                         # ── NEW: ignore tracks shorter than one minute ──────────────────────
